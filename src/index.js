@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
 const fs = require('fs');
+const { execSync } = require('child_process');
 
 async function run() {
   try {
@@ -11,6 +12,10 @@ async function run() {
     const s3Bucket = core.getInput('S3_BUCKET');
     const ghOrgName = core.getInput('GH_ORG_NAME');
     const ghUserName = core.getInput('GH_USER_NAME');
+
+    if (!ghOrgName && !ghUserName) {
+      throw new Error('You must provide either GH_ORG_NAME or GH_USER_NAME.');
+    }
 
     // Set AWS environment variables
     core.exportVariable('AWS_ACCESS_KEY_ID', awsAccessKeyId);
@@ -28,10 +33,8 @@ async function run() {
     let reposResponse = '';
     if (ghOrgName) {
       reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s https://api.github.com/orgs/${ghOrgName}/repos`);
-    } else if (ghUserName) {
-      reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s https://api.github.com/users/${ghUserName}/repos`);
     } else {
-      throw new Error('Neither GH_ORG_NAME nor GH_USER_NAME is provided.');
+      reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s https://api.github.com/users/${ghUserName}/repos`);
     }
     const repos = JSON.parse(reposResponse.stdout).map(repo => repo.clone_url);
     for (const repo of repos) {
@@ -41,8 +44,11 @@ async function run() {
     // Compress repositories
     await exec.exec(`zip -r backup.zip .`);
 
+    // Get the current date and time for the file name
+    const date = execSync('date +%Y%m%d%H%M%S').toString().trim();
+
     // Upload to S3
-    await exec.exec(`aws s3 cp backup.zip s3://${s3Bucket}/backup_$(date +%Y%m%d%H%M%S).zip`);
+    await exec.exec(`aws s3 cp backup.zip s3://${s3Bucket}/backup_${date}.zip`);
 
   } catch (error) {
     core.setFailed(error.message);
