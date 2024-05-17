@@ -26,7 +26,7 @@ jobs:
 
       - name: Clone Repositories
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           mkdir backup
           cd backup
