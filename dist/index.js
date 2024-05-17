@@ -28067,10 +28067,6 @@ async function run() {
     const s3Bucket = core.getInput('S3_BUCKET');
     const ghOrgName = core.getInput('GH_ORG_NAME');
 
-    if (!ghOrgName) {
-      throw new Error('You must provide GH_ORG_NAME.');
-    }
-
     // Set AWS environment variables
     core.exportVariable('AWS_ACCESS_KEY_ID', awsAccessKeyId);
     core.exportVariable('AWS_SECRET_ACCESS_KEY', awsSecretAccessKey);
