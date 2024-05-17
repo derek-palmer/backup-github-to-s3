@@ -11,10 +11,9 @@ async function run() {
     const awsDefaultRegion = core.getInput('AWS_DEFAULT_REGION');
     const s3Bucket = core.getInput('S3_BUCKET');
     const ghOrgName = core.getInput('GH_ORG_NAME');
-    const ghUserName = core.getInput('GH_USER_NAME');
 
-    if (!ghOrgName && !ghUserName) {
-      throw new Error('You must provide either GH_ORG_NAME or GH_USER_NAME.');
+    if (!ghOrgName) {
+      throw new Error('You must provide GH_ORG_NAME.');
     }
 
     // Set AWS environment variables
@@ -39,6 +38,7 @@ async function run() {
 
     // Log the API response to verify the content
     console.log(reposResponse.stdout);
+
     const repos = JSON.parse(reposResponse.stdout).map(repo => repo.clone_url);
     for (const repo of repos) {
       await exec.exec(`git clone ${repo}`);
