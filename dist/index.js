@@ -28077,6 +28077,9 @@ async function run() {
     await exec.exec('unzip awscliv2.zip');
     await exec.exec('sudo ./aws/install --update');
 
+    // Set up Git authentication
+    await exec.exec(`git config --global url.https://x-access-token:${ghToken}@github.com/.insteadOf https://github.com/`);
+
     // Clone repositories
     fs.mkdirSync('backup', { recursive: true });
     process.chdir('backup');
