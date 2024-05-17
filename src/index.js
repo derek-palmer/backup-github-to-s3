@@ -39,7 +39,6 @@ async function run() {
 
     // Log the API response to verify the content
     console.log(reposResponse.stdout);
-
     const repos = JSON.parse(reposResponse.stdout).map(repo => repo.clone_url);
     for (const repo of repos) {
       await exec.exec(`git clone ${repo}`);

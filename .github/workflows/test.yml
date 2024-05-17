@@ -1,4 +1,4 @@
-name: Backup GitHub Repos to S3
+name: Backup GitHub Repos to S3 - Test
 
 on:
   schedule:
@@ -22,3 +22,4 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           GH_ORG_NAME: ${{ secrets.GH_ORG_NAME }} # Only required if backing up an organization's repositories
+
