@@ -1,4 +1,5 @@
 # GitHub Repos Backup to AWS S3
+[![Backup GitHub Repos to S3](https://github.com/derek-palmer/backup-github-to-s3/actions/workflows/gh-backup-to-s3.yml/badge.svg)](https://github.com/derek-palmer/backup-github-to-s3/actions/workflows/gh-backup-to-s3.yml)
 
 This repository contains a GitHub Action workflow to back up all repositories in your GitHub organization to an Amazon S3 bucket. The workflow clones all repositories, compresses them into a zip file, and uploads the archive to S3 on a scheduled basis or via manual trigger.
 
