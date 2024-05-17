@@ -22,6 +22,10 @@ async function run() {
     await exec.exec('unzip awscliv2.zip');
     await exec.exec('sudo ./aws/install --update');
 
+    // Install Git LFS
+    await exec.exec('sudo apt-get install git-lfs');
+    await exec.exec('git lfs install');
+
     // Set up Git authentication
     await exec.exec(`git config --global url.https://x-access-token:${ghToken}@github.com/.insteadOf https://github.com/`);
 
