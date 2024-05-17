@@ -66,7 +66,7 @@ Save the access key ID and secret access key for the new user. You will use thes
    - `AWS_ACCESS_KEY_ID`: Your IAM user's access key ID.
    - `AWS_SECRET_ACCESS_KEY`: Your IAM user's secret access key.
    - `AWS_DEFAULT_REGION`: The AWS region where your S3 bucket is located.
-   - `GITHUB_TOKEN`: A personal access token with read access to your organization's repositories.
+   - `GH_TOKEN`: A personal access token with read access to your organization's repositories.
 
 
 ### 5. Useage
