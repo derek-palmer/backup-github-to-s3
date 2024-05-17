@@ -42,7 +42,7 @@ GitHub organization name (optional). Provide this to back up an organization's r
 1. Go to your repository's settings.
 2. Navigate to "Secrets and variables" > "Actions".
 3. Add the following secrets:
-   - `GH_PAT`: The GitHub Personal Access Token generated in Step 1.
+   - `GH_TOKEN`: The GitHub Personal Access Token generated in Step 1.
    - `AWS_ACCESS_KEY_ID`: Your AWS Access Key ID.
    - `AWS_SECRET_ACCESS_KEY`: Your AWS Secret Access Key.
    - `AWS_DEFAULT_REGION`: Your AWS region.
@@ -72,7 +72,7 @@ jobs:
       - name: Run backup action
         uses: your-username/backup-to-s3-action@v1.0.0
         with:
-          GH_TOKEN: ${{ secrets.GH_PAT }} # Ensure this is the correct PAT with `repo` scope
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} # Ensure this is the correct PAT with `repo` scope
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
