@@ -34,12 +34,20 @@ jobs:
           # Try to get organization repositories
           org_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/orgs/${{ github.repository_owner }}/repos)
           echo "Organization Repos Response: $org_repos_response"
-          repos=$(echo "$org_repos_response" | jq -r '.[] | .clone_url')
-          # If no organization repositories are found, try to get user repositories
-          if [ -z "$repos" ]; then
+          org_repos_message=$(echo "$org_repos_response" | jq -r '.message')
+          if [ "$org_repos_message" = "Not Found" ]; then
+            echo "Organization not found or token does not have access. Checking user repositories."
             user_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/users/${{ github.repository_owner }}/repos)
             echo "User Repos Response: $user_repos_response"
-            repos=$(echo "$user_repos_response" | jq -r '.[] | .clone_url')
+            user_repos_message=$(echo "$user_repos_response" | jq -r '.message')
+            if [ "$user_repos_message" = "Not Found" ]; then
+              echo "User not found or token does not have access."
+              exit 1
+            else
+              repos=$(echo "$user_repos_response" | jq -r '.[] | .clone_url')
+            fi
+          else
+            repos=$(echo "$org_repos_response" | jq -r '.[] | .clone_url')
           fi
           # If still no repositories, print an error message
           if [ -z "$repos" ]; then
@@ -60,5 +68,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
-          aws s3 cp backup.zip s3://${{ secrets.S3_BUCKET }}/backup_$(date +%Y%m%d%H%M%S).zip
+          aws s3 cp backup.zip s3://$S3_BUCKET/backup_$(date +%Y%m%d%H%M%S).zip
