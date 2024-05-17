@@ -30,7 +30,7 @@ jobs:
         run: |
           mkdir backup
           cd backup
-          repos=$(curl -H "Authorization: token $GITHUB_TOKEN" -s https://api.github.com/orgs/${{ github.repository_owner }}/repos | jq -r '.[].clone_url')
+          repos=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/orgs/${{ github.repository_owner }}/repos | jq -r '.[].clone_url')
           for repo in $repos; do
             git clone $repo
           done
