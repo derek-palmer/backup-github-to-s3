@@ -28087,10 +28087,14 @@ async function run() {
     process.chdir('backup');
     let reposResponse = '';
     if (ghOrgName) {
-      reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s https://api.github.com/orgs/${ghOrgName}/repos`);
+      reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s "https://api.github.com/orgs/${ghOrgName}/repos?type=all"`);
     } else {
-      reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s https://api.github.com/users/${ghUserName}/repos`);
+      reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s "https://api.github.com/user/repos?type=all"`);
     }
+
+    // Log the API response to verify the content
+    console.log(reposResponse.stdout);
+
     const repos = JSON.parse(reposResponse.stdout).map(repo => repo.clone_url);
     for (const repo of repos) {
       await exec.exec(`git clone ${repo}`);
