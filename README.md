@@ -62,3 +62,4 @@ jobs:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
           GH_ORG_NAME: ${{ secrets.GH_ORG_NAME }} # Or provide GH_USER_NAME
           GH_USER_NAME: ${{ secrets.GH_USER_NAME }} # Or provide GH_ORG_NAME
+```
