@@ -1,4 +1,4 @@
-# Backup to S3 Action
+# Github Backup to S3 Action
 
 This action backs up GitHub repositories to an Amazon S3 bucket.
 
