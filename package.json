@@ -1,0 +1,19 @@
+{
+    "name": "backup-github-to-s3-action",
+    "version": "1.0.0",
+    "description": "A GitHub Action to backup GitHub repositories to Amazon S3",
+    "main": "index.js",
+    "scripts": {
+      "build": "ncc build src/index.js -o dist"
+    },
+    "dependencies": {
+      "@actions/core": "^1.4.0",
+      "@actions/exec": "^1.0.4"
+    },
+    "devDependencies": {
+      "@vercel/ncc": "^0.29.2"
+    },
+    "author": "Derek Palmer",
+    "license": "MIT"
+  }
+  
