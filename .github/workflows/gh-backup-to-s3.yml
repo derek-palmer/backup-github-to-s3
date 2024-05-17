@@ -11,26 +11,60 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Updated to the latest version
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: '3.x'
 
       - name: Install AWS CLI
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install --update
+          rm -rf awscliv2.zip aws
 
-      - name: Clone Repositories
+      - name: Determine Repositories to Backup
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_ORG_NAME: ${{ secrets.GH_ORG_NAME }}
+          GH_USER_NAME: ${{ secrets.GH_USER_NAME }}
         run: |
-          mkdir backup
+          mkdir -p backup
           cd backup
-          repos=$(curl -H "Authorization: token $GITHUB_TOKEN" -s https://api.github.com/orgs/${{ github.repository_owner }}/repos | jq -r '.[].clone_url')
+          if [ -n "$GH_ORG_NAME" ]; then
+            # Try to get organization repositories
+            org_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/orgs/$GH_ORG_NAME/repos)
+            echo "Organization Repos Response: $org_repos_response"
+            org_repos_message=$(echo "$org_repos_response" | jq -r '.message')
+            if [ "$org_repos_message" = "Not Found" ]; then
+              echo "Organization not found or token does not have access."
+              exit 1
+            else
+              repos=$(echo "$org_repos_response" | jq -r '.[] | .clone_url')
+            fi
+          elif [ -n "$GH_USER_NAME" ]; then
+            # Try to get user repositories
+            user_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/users/$GH_USER_NAME/repos)
+            echo "User Repos Response: $user_repos_response"
+            user_repos_message=$(echo "$user_repos_response" | jq -r '.message')
+            if [ "$user_repos_message" = "Not Found" ]; then
+              echo "User not found or token does not have access."
+              exit 1
+            else
+              repos=$(echo "$user_repos_response" | jq -r '.[] | .clone_url')
+            fi
+          else
+            echo "No organization or user name provided."
+            exit 1
+          fi
+          # If still no repositories, print an error message
+          if [ -z "$repos" ]; then
+            echo "No repositories found for organization or user."
+            exit 1
+          fi
+          # Clone each repository
           for repo in $repos; do
             git clone $repo
           done
@@ -44,5 +78,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
         run: |
-          aws s3 cp backup.zip s3://${{ secrets.S3_BUCKET }}/backup_$(date +%Y%m%d%H%M%S).zip
+          aws s3 cp backup.zip s3://$S3_BUCKET/backup_$(date +%Y%m%d%H%M%S).zip
