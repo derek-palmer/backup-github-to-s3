@@ -6,7 +6,7 @@ This action backs up GitHub repositories to an Amazon S3 bucket.
 
 ### `GH_TOKEN`
 
-**Required** GitHub token.
+**Required** GitHub token (Personal Access Token with `repo` scope to access private repositories).
 
 ### `AWS_ACCESS_KEY_ID`
 
@@ -26,15 +26,32 @@ This action backs up GitHub repositories to an Amazon S3 bucket.
 
 ### `GH_ORG_NAME`
 
-GitHub organization name (optional). Either this or `GH_USER_NAME` must be provided.
+GitHub organization name (optional). Provide this to back up an organization's repositories. If not provided, the action will back up repositories for the user associated with the provided GitHub token.
 
-### `GH_USER_NAME`
+## Setup
 
-GitHub username (optional). Either this or `GH_ORG_NAME` must be provided.
+### Step 1: Generate a GitHub Personal Access Token
 
-## Example usage
+1. Go to your GitHub account settings.
+2. Navigate to "Developer settings" > "Personal access tokens".
+3. Generate a new token with the `repo` scope.
+4. Copy the token.
 
-Here's how to use this action in your own workflow, including a schedule to run daily at 2 AM UTC:
+### Step 2: Add Secrets to Your Repository
+
+1. Go to your repository's settings.
+2. Navigate to "Secrets and variables" > "Actions".
+3. Add the following secrets:
+   - `GH_PAT`: The GitHub Personal Access Token generated in Step 1.
+   - `AWS_ACCESS_KEY_ID`: Your AWS Access Key ID.
+   - `AWS_SECRET_ACCESS_KEY`: Your AWS Secret Access Key.
+   - `AWS_DEFAULT_REGION`: Your AWS region.
+   - `S3_BUCKET`: The name of your S3 bucket.
+   - `GH_ORG_NAME`: (Optional) The GitHub organization name if you are backing up an organization's repositories.
+
+## Example Workflow
+
+Create a workflow file in your repository (e.g., `.github/workflows/backup.yml`) with the following content:
 
 ```yaml
 name: Backup GitHub Repos to S3
@@ -50,16 +67,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Run backup action
-        uses: derek-palmer/backup-to-s3-action@v1.0.0
+        uses: your-username/backup-to-s3-action@v1.0.0
         with:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }} # Ensure this is the correct PAT with `repo` scope
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          GH_ORG_NAME: ${{ secrets.GH_ORG_NAME }} # Or provide GH_USER_NAME
-          GH_USER_NAME: ${{ secrets.GH_USER_NAME }} # Or provide GH_ORG_NAME
+          GH_ORG_NAME: ${{ secrets.GH_ORG_NAME }} # Only required if backing up an organization's repositories
 ```
