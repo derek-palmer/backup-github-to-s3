@@ -28084,7 +28084,7 @@ async function run() {
     if (ghOrgName) {
       reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s "https://api.github.com/orgs/${ghOrgName}/repos?type=all"`);
     } else {
-      reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s "https://api.github.com/user/repos?type=all"`);
+      reposResponse = await exec.getExecOutput(`curl -H "Authorization: token ${ghToken}" -s "https://api.github.com/user/repos?type=all&affiliation=owner"`);
     }
 
     // Log the API response to verify the content
