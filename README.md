@@ -42,7 +42,7 @@ name: Backup GitHub Repos to S3
 on:
   schedule:
     - cron: '0 2 * * *' # Runs every day at 2 AM UTC
-  workflow_dispatch: # Allows manual triggering of the workflow if desired
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
   backup:
@@ -50,13 +50,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Run backup action
-        uses: your-username/backup-to-s3-action@v1.0.0
+        uses: derek-palmer/backup-to-s3-action@v1.0.0
         with:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          S3_BUCKE
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          GH_ORG_NAME: ${{ secrets.GH_ORG_NAME }} # Or provide GH_USER_NAME
+          GH_USER_NAME: ${{ secrets.GH_USER_NAME }} # Or provide GH_ORG_NAME
