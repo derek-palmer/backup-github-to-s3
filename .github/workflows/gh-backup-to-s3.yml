@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 # Updated to the latest version
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -37,9 +37,9 @@ jobs:
             # Try to get organization repositories
             org_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/orgs/$GH_ORG_NAME/repos)
             echo "Organization Repos Response: $org_repos_response"
-            org_repos_message=$(echo "$org_repos_response" | jq -r '.message')
-            if [ "$org_repos_message" = "Not Found" ]; then
-              echo "Organization not found or token does not have access."
+            org_repos_error=$(echo "$org_repos_response" | jq -r 'if type=="object" and .message then .message else empty end')
+            if [ -n "$org_repos_error" ]; then
+              echo "Error fetching organization repositories: $org_repos_error"
               exit 1
             else
               repos=$(echo "$org_repos_response" | jq -r '.[] | .clone_url')
@@ -48,9 +48,9 @@ jobs:
             # Try to get user repositories
             user_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/users/$GH_USER_NAME/repos)
             echo "User Repos Response: $user_repos_response"
-            user_repos_message=$(echo "$user_repos_response" | jq -r '.message')
-            if [ "$user_repos_message" = "Not Found" ]; then
-              echo "User not found or token does not have access."
+            user_repos_error=$(echo "$user_repos_response" | jq -r 'if type=="object" and .message then .message else empty end')
+            if [ -n "$user_repos_error" ]; then
+              echo "Error fetching user repositories: $user_repos_error"
               exit 1
             else
               repos=$(echo "$user_repos_response" | jq -r '.[] | .clone_url')
