@@ -25,19 +25,28 @@ jobs:
           sudo ./aws/install --update
           rm -rf awscliv2.zip aws
 
-      - name: Clone Repositories
+      - name: Determine Repositories to Backup
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_ORG_NAME: ${{ secrets.GH_ORG_NAME }}
+          GH_USER_NAME: ${{ secrets.GH_USER_NAME }}
         run: |
           mkdir -p backup
           cd backup
-          # Try to get organization repositories
-          org_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/orgs/${{ github.repository_owner }}/repos)
-          echo "Organization Repos Response: $org_repos_response"
-          org_repos_message=$(echo "$org_repos_response" | jq -r '.message')
-          if [ "$org_repos_message" = "Not Found" ]; then
-            echo "Organization not found or token does not have access. Checking user repositories."
-            user_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/users/${{ github.repository_owner }}/repos)
+          if [ -n "$GH_ORG_NAME" ]; then
+            # Try to get organization repositories
+            org_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/orgs/$GH_ORG_NAME/repos)
+            echo "Organization Repos Response: $org_repos_response"
+            org_repos_message=$(echo "$org_repos_response" | jq -r '.message')
+            if [ "$org_repos_message" = "Not Found" ]; then
+              echo "Organization not found or token does not have access."
+              exit 1
+            else
+              repos=$(echo "$org_repos_response" | jq -r '.[] | .clone_url')
+            fi
+          elif [ -n "$GH_USER_NAME" ]; then
+            # Try to get user repositories
+            user_repos_response=$(curl -H "Authorization: token $GH_TOKEN" -s https://api.github.com/users/$GH_USER_NAME/repos)
             echo "User Repos Response: $user_repos_response"
             user_repos_message=$(echo "$user_repos_response" | jq -r '.message')
             if [ "$user_repos_message" = "Not Found" ]; then
@@ -47,7 +56,8 @@ jobs:
               repos=$(echo "$user_repos_response" | jq -r '.[] | .clone_url')
             fi
           else
-            repos=$(echo "$org_repos_response" | jq -r '.[] | .clone_url')
+            echo "No organization or user name provided."
+            exit 1
           fi
           # If still no repositories, print an error message
           if [ -z "$repos" ]; then
