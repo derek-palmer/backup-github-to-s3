@@ -1,0 +1,31 @@
+name: 'Backup Github to AWS S3'
+description: 'A GitHub Action to backup GitHub repositories to Amazon S3'
+author: 'Your Name'
+inputs:
+  GH_TOKEN:
+    description: 'GitHub token'
+    required: true
+  AWS_ACCESS_KEY_ID:
+    description: 'AWS Access Key ID'
+    required: true
+  AWS_SECRET_ACCESS_KEY:
+    description: 'AWS Secret Access Key'
+    required: true
+  AWS_DEFAULT_REGION:
+    description: 'AWS Region'
+    required: true
+  S3_BUCKET:
+    description: 'S3 bucket name'
+    required: true
+  GH_ORG_NAME:
+    description: 'GitHub organization name (optional)'
+    required: false
+  GH_USER_NAME:
+    description: 'GitHub username (optional)'
+    required: false
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+branding:
+  icon: 'package'
+  color: 'blue'
